@@ -21,8 +21,8 @@ public class TennisCourtController extends BaseRestController {
             @ApiResponse(code = 201, message = "TennisCourt added successfully"),
             @ApiResponse(code = 400, message = "Bad Request. Invalid data")
     })
-    public ResponseEntity<Void> addTennisCourt(@RequestBody TennisCourtDTO tennisCourtDTO) {
-        return ResponseEntity.created(locationByEntity(tennisCourtService.addTennisCourt(tennisCourtDTO).getId())).build();
+    public ResponseEntity<Void> addTennisCourt(@RequestBody CreateTennisCourtRequestDTO createTennisCourtRequestDTO) {
+        return ResponseEntity.created(locationByEntity(tennisCourtService.addTennisCourt(createTennisCourtRequestDTO).getId())).build();
     }
 
     @GetMapping("/{id}")

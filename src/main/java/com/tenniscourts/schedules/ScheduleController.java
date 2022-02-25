@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,8 +38,9 @@ public class ScheduleController extends BaseRestController {
             @ApiResponse(code = 400, message = "Bad Request. Invalid input data"),
             @ApiResponse(code = 404, message = "Not Found. Schedules not found")
     })
-    public ResponseEntity<List<ScheduleDTO>> findSchedulesBetweenDates(@RequestParam("startDate") LocalDate startDate, @RequestParam("endDate") LocalDate endDate) {
-        return ResponseEntity.ok(scheduleService.findSchedulesByDates(LocalDateTime.of(startDate, LocalTime.of(0, 0)), LocalDateTime.of(endDate, LocalTime.of(23, 59))));
+    public ResponseEntity<List<ScheduleDTO>> findSchedulesBetweenDates(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                                       @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        return ResponseEntity.ok(scheduleService.findSchedulesBetweenDates(LocalDateTime.of(startDate, LocalTime.of(0, 0)), LocalDateTime.of(endDate, LocalTime.of(23, 59))));
     }
 
     @GetMapping("/{id}")
@@ -49,6 +51,6 @@ public class ScheduleController extends BaseRestController {
             @ApiResponse(code = 404, message = "Not Found. Schedule not found")
     })
     public ResponseEntity<ScheduleDTO> findScheduleById(@PathVariable("id") Long scheduleId) {
-        return ResponseEntity.ok(scheduleService.findSchedule(scheduleId));
+        return ResponseEntity.ok(scheduleService.findScheduleById(scheduleId));
     }
 }

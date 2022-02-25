@@ -23,8 +23,8 @@ public class GuestController extends BaseRestController {
             @ApiResponse(code = 201, message = "Guest added successfully"),
             @ApiResponse(code = 400, message = "Bad Request. Invalid data")
     })
-    public ResponseEntity<Void> addGuest(@RequestBody GuestDTO guestDTO) {
-        return ResponseEntity.created(locationByEntity(guestService.addGuest(guestDTO).getId())).build();
+    public ResponseEntity<Void> addGuest(@RequestBody CreateGuestRequestDTO createGuestRequestDTO) {
+        return ResponseEntity.created(locationByEntity(guestService.addGuest(createGuestRequestDTO).getId())).build();
     }
 
     @PutMapping

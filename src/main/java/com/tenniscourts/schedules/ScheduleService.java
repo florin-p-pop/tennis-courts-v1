@@ -14,7 +14,7 @@ public class ScheduleService {
 
     private final ScheduleMapper scheduleMapper;
 
-    public ScheduleDTO addSchedule(Long tennisCourtId, CreateScheduleRequestDTO createScheduleRequestDTO) {
+    public ScheduleDTO addSchedule(CreateScheduleRequestDTO createScheduleRequestDTO) {
         //TODO: implement addSchedule
         return null;
     }

@@ -12,6 +12,8 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -54,6 +56,32 @@ public class ReservationService {
         return reservationMapper.map(this.cancel(reservationId));
     }
 
+    @Transactional
+    public ReservationDTO rescheduleReservation(Long previousReservationId, Long scheduleId) {
+        Reservation previousReservation = cancel(previousReservationId);
+
+        if (scheduleId.equals(previousReservation.getSchedule().getId())) {
+            throw new IllegalArgumentException("Cannot reschedule to the same slot.");
+        }
+
+        previousReservation.setReservationStatus(ReservationStatus.RESCHEDULED);
+        reservationRepository.save(previousReservation);
+
+        ReservationDTO newReservation = bookReservation(CreateReservationRequestDTO.builder()
+                .guestId(previousReservation.getGuest().getId())
+                .scheduleId(scheduleId)
+                .build());
+        newReservation.setPreviousReservation(reservationMapper.map(previousReservation));
+        return newReservation;
+    }
+
+    public List<ReservationDTO> getAllPastReservations() {
+        return reservationRepository.findBySchedule_EndDateTimeLessThan(LocalDateTime.now())
+                .stream()
+                .map(reservationMapper::map)
+                .collect(Collectors.toList());
+    }
+
     private Reservation cancel(Long reservationId) {
         return reservationRepository.findById(reservationId).map(reservation -> {
 
@@ -85,32 +113,18 @@ public class ReservationService {
         }
     }
 
-    public BigDecimal getRefundValue(Reservation reservation) {
+    private BigDecimal getRefundValue(Reservation reservation) {
         long hours = ChronoUnit.HOURS.between(LocalDateTime.now(), reservation.getSchedule().getStartDateTime());
 
         if (hours >= 24) {
             return reservation.getValue();
+        } else if (hours >= 12) {
+            return reservation.getValue().multiply(BigDecimal.valueOf(0.75));
+        } else if (hours >= 2) {
+            return reservation.getValue().multiply(BigDecimal.valueOf(0.5));
+        } else if (hours > 0) {
+            return reservation.getValue().multiply(BigDecimal.valueOf(0.25));
         }
-
         return BigDecimal.ZERO;
-    }
-
-    @Transactional
-    public ReservationDTO rescheduleReservation(Long previousReservationId, Long scheduleId) {
-        Reservation previousReservation = cancel(previousReservationId);
-
-        if (scheduleId.equals(previousReservation.getSchedule().getId())) {
-            throw new IllegalArgumentException("Cannot reschedule to the same slot.");
-        }
-
-        previousReservation.setReservationStatus(ReservationStatus.RESCHEDULED);
-        reservationRepository.save(previousReservation);
-
-        ReservationDTO newReservation = bookReservation(CreateReservationRequestDTO.builder()
-                .guestId(previousReservation.getGuest().getId())
-                .scheduleId(scheduleId)
-                .build());
-        newReservation.setPreviousReservation(reservationMapper.map(previousReservation));
-        return newReservation;
     }
 }

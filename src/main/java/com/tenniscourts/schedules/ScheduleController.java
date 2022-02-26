@@ -43,6 +43,18 @@ public class ScheduleController extends BaseRestController {
         return ResponseEntity.ok(scheduleService.findSchedulesBetweenDates(LocalDateTime.of(startDate, LocalTime.of(0, 0)), LocalDateTime.of(endDate, LocalTime.of(23, 59))));
     }
 
+    @GetMapping("/between-dates/available")
+    @ApiOperation("Find available schedule between dates")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Ok. Schedules successfully found"),
+            @ApiResponse(code = 400, message = "Bad Request. Invalid input data"),
+            @ApiResponse(code = 404, message = "Not Found. Schedules not found")
+    })
+    public ResponseEntity<List<ScheduleDTO>> findAvailableSchedulesBetweenDates(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                                       @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        return ResponseEntity.ok(scheduleService.findAvailableSchedulesBetweenDates(LocalDateTime.of(startDate, LocalTime.of(0, 0)), LocalDateTime.of(endDate, LocalTime.of(23, 59))));
+    }
+
     @GetMapping("/{id}")
     @ApiOperation("Find schedule by Id")
     @ApiResponses(value = {

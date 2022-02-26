@@ -1,6 +1,8 @@
 package com.tenniscourts.schedules;
 
 import com.tenniscourts.exceptions.EntityNotFoundException;
+import com.tenniscourts.reservations.ReservationRepository;
+import com.tenniscourts.reservations.ReservationStatus;
 import com.tenniscourts.tenniscourts.TennisCourt;
 import com.tenniscourts.tenniscourts.TennisCourtRepository;
 import lombok.AllArgsConstructor;
@@ -20,6 +22,8 @@ public class ScheduleService {
 
     private final TennisCourtRepository tennisCourtRepository;
 
+    private final ReservationRepository reservationRepository;
+
     public ScheduleDTO addSchedule(CreateScheduleRequestDTO createScheduleRequestDTO) {
         Schedule schedule = Schedule.builder()
                 .tennisCourt(findTennisCourtById(createScheduleRequestDTO.getTennisCourtId()))
@@ -33,6 +37,13 @@ public class ScheduleService {
     public List<ScheduleDTO> findSchedulesBetweenDates(LocalDateTime startDate, LocalDateTime endDate) {
         return scheduleRepository.findAllByStartDateTimeGreaterThanEqualAndEndDateTimeLessThanEqual(startDate, endDate)
                 .stream().map(scheduleMapper::map).collect(Collectors.toList());
+    }
+
+    public List<ScheduleDTO> findAvailableSchedulesBetweenDates(LocalDateTime startDate, LocalDateTime endDate) {
+        return findSchedulesBetweenDates(startDate, endDate)
+                .stream()
+                .filter(this::isAvailable)
+                .collect(Collectors.toList());
     }
 
     public ScheduleDTO findScheduleById(Long scheduleId) {
@@ -49,5 +60,11 @@ public class ScheduleService {
         return tennisCourtRepository.findById(id).orElseThrow(() -> {
             throw new EntityNotFoundException("Tennis Court not found.");
         });
+    }
+
+    private boolean isAvailable(ScheduleDTO scheduleDTO) {
+        return reservationRepository.findBySchedule_Id(scheduleDTO.getId())
+                .stream()
+                .anyMatch(reservation -> !reservation.getReservationStatus().equals(ReservationStatus.READY_TO_PLAY));
     }
 }

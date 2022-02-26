@@ -75,7 +75,7 @@ public class ReservationService {
         return newReservation;
     }
 
-    public List<ReservationDTO> getAllPastReservations() {
+    public List<ReservationDTO> findAllPastReservations() {
         return reservationRepository.findBySchedule_EndDateTimeLessThan(LocalDateTime.now())
                 .stream()
                 .map(reservationMapper::map)

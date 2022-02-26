@@ -62,8 +62,8 @@ public class ReservationController extends BaseRestController {
 
     @GetMapping("/past-reservations")
     @ApiOperation("Find all past reservations")
-    public ResponseEntity<List<ReservationDTO>> getAllPastReservations() {
-        return ResponseEntity.ok(reservationService.getAllPastReservations());
+    public ResponseEntity<List<ReservationDTO>> findAllPastReservations() {
+        return ResponseEntity.ok(reservationService.findAllPastReservations());
     }
 
 }

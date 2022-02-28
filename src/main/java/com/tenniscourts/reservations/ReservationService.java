@@ -3,6 +3,7 @@ package com.tenniscourts.reservations;
 import com.tenniscourts.exceptions.EntityNotFoundException;
 import com.tenniscourts.guests.GuestMapper;
 import com.tenniscourts.guests.GuestService;
+import com.tenniscourts.schedules.Schedule;
 import com.tenniscourts.schedules.ScheduleMapper;
 import com.tenniscourts.schedules.ScheduleService;
 import lombok.AllArgsConstructor;
@@ -37,7 +38,7 @@ public class ReservationService {
     public ReservationDTO bookReservation(CreateReservationRequestDTO createReservationRequestDTO) {
         Reservation reservation = Reservation.builder()
                 .guest(guestMapper.map(guestService.findGuestById(createReservationRequestDTO.getGuestId())))
-                .schedule(scheduleMapper.map(scheduleService.findScheduleById(createReservationRequestDTO.getScheduleId())))
+                .schedule(validateSchedule(scheduleMapper.map(scheduleService.findScheduleById(createReservationRequestDTO.getScheduleId()))))
                 .value(DEPOSIT)
                 .reservationStatus(ReservationStatus.READY_TO_PLAY)
                 .refundValue(DEPOSIT)
@@ -126,5 +127,10 @@ public class ReservationService {
             return reservation.getValue().multiply(BigDecimal.valueOf(0.25));
         }
         return BigDecimal.ZERO;
+    }
+
+    private Schedule validateSchedule(Schedule schedule) {
+        scheduleService.validateStartDateTime(schedule.getStartDateTime());
+        return schedule;
     }
 }

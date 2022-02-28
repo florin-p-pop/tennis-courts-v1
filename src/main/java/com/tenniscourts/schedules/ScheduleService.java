@@ -25,6 +25,7 @@ public class ScheduleService {
     private final ReservationRepository reservationRepository;
 
     public ScheduleDTO addSchedule(CreateScheduleRequestDTO createScheduleRequestDTO) {
+        validateStartDateTime(createScheduleRequestDTO.getStartDateTime());
         Schedule schedule = Schedule.builder()
                 .tennisCourt(findTennisCourtById(createScheduleRequestDTO.getTennisCourtId()))
                 .startDateTime(createScheduleRequestDTO.getStartDateTime())
@@ -60,6 +61,12 @@ public class ScheduleService {
         return tennisCourtRepository.findById(id).orElseThrow(() -> {
             throw new EntityNotFoundException("Tennis Court not found.");
         });
+    }
+
+    public void validateStartDateTime(LocalDateTime startDateTime) {
+        if (startDateTime.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("StartDateTime can not be in the past.");
+        }
     }
 
     private boolean isAvailable(ScheduleDTO scheduleDTO) {

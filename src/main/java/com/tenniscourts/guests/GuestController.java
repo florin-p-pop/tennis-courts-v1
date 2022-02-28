@@ -30,7 +30,7 @@ public class GuestController extends BaseRestController {
     @PutMapping
     @ApiOperation("Update guest")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Guest successfully updated"),
+            @ApiResponse(code = 200, message = "Guest successfully updated"),
             @ApiResponse(code = 400, message = "Bad Request. Invalid data"),
             @ApiResponse(code = 404, message = "Not Found. Guest not found")
     })

@@ -15,7 +15,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,6 +42,14 @@ public class ReservationControllerTest {
     }
 
     @Test
+    public void bookReservation_startDateInThePast() throws Exception {
+        mockMvc.perform(post("/reservations").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(CreateReservationRequestDTO.builder().guestId(1L).scheduleId(1L).build())))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("StartDateTime can not be in the past.", result.getResolvedException().getMessage()));
+    }
+
+    @Test
     public void cancelReservation() throws Exception {
         MvcResult mvcResult = mockMvc.perform(put("/reservations/cancel/2"))
                 .andExpect(status().isOk())
@@ -54,9 +61,24 @@ public class ReservationControllerTest {
     }
 
     @Test
+    public void cancelReservation_wrongStatus() throws Exception {
+        mockMvc.perform(put("/reservations/cancel/3"))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("Cannot cancel/reschedule because it's not in ready to play status.", result.getResolvedException().getMessage()));
+    }
+
+    @Test
+    public void cancelReservation_dateInThePast() throws Exception {
+        mockMvc.perform(put("/reservations/cancel/1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("Can cancel/reschedule only future dates.", result.getResolvedException().getMessage()));
+    }
+
+    @Test
     public void findAllPastReservations() throws Exception {
         MvcResult mvcResult = mockMvc.perform(get("/reservations/past-reservations"))
-                .andExpect(status().isOk()).andReturn();
+                .andExpect(status().isOk())
+                .andReturn();
 
         List<ReservationDTO> reservationDTOs = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<>() {});
         assertEquals(1, reservationDTOs.size());
@@ -66,7 +88,8 @@ public class ReservationControllerTest {
     @Test
     public void findReservation() throws Exception {
         MvcResult mvcResult = mockMvc.perform(get("/reservations/1"))
-                .andExpect(status().isOk()).andReturn();
+                .andExpect(status().isOk())
+                .andReturn();
 
         ReservationDTO reservationDTO = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ReservationDTO.class);
         assertEquals(1, reservationDTO.getId());

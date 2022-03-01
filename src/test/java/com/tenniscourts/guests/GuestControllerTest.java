@@ -55,7 +55,8 @@ public class GuestControllerTest {
     @Test
     public void findAllGuests() throws Exception {
         MvcResult mvcResult = mockMvc.perform(get("/guests"))
-                .andExpect(status().isOk()).andReturn();
+                .andExpect(status().isOk())
+                .andReturn();
 
         List<GuestDTO> guestDTOs = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<>() {});
         assertEquals(2, guestDTOs.size());
@@ -64,7 +65,8 @@ public class GuestControllerTest {
     @Test
     public void findGuestById() throws Exception {
         MvcResult mvcResult = mockMvc.perform(get("/guests/1"))
-                .andExpect(status().isOk()).andReturn();
+                .andExpect(status().isOk())
+                .andReturn();
 
         GuestDTO guestDTO = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), GuestDTO.class);
         assertEquals(1, guestDTO.getId());

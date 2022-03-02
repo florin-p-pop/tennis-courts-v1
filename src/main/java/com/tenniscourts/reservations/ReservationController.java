@@ -52,7 +52,7 @@ public class ReservationController extends BaseRestController {
     @PutMapping("/reschedule")
     @ApiOperation("Reschedule reservation")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Reservation successfully rescheduled"),
+            @ApiResponse(code = 200, message = "Reservation successfully rescheduled"),
             @ApiResponse(code = 400, message = "Bad Request. Invalid data"),
             @ApiResponse(code = 404, message = "Not Found. Reservation not found")
     })
